@@ -1,16 +1,17 @@
-import redis
+from flask      import Flask
+from flask_cors import CORS
 
 from sqlalchemy    import create_engine
-
+from api.injectors import get_services
 import config
-from api.injectors import create_app
+
+from api.view.views import ping
 
 database = create_engine(f"{config.DB_CONNECTION_URL}?charset=utf8")
-redis    = redis.Redis('localhost')
+services = get_services(database)
 
-facebook_credentials = {
-    'FACEBOOK_API_URL'  : config.FACEBOOK_API_URL,
-    'VERIFY_TOKEN'      : config.VERIFY_TOKEN,
-    'PAGE_ACCESS_TOKEN' : config.PAGE_ACCESS_TOKEN
-}
-app = create_app(database, facebook_credentials, redis)
+app = Flask(__name__)
+app.add_url_rule('/', 'check_verify_token', check_verify_token, defaults={"services": services})
+app.add_url_rule('/', 'facebook_message', facebook_message, defaults={"services": services})
+
+CORS(app)

@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  flask_app
+
+  Sample SAM Template for covid19 api
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  GetFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: .
+      Handler: lambda_api.lambda_handler_get
+      Runtime: python3.8
+      Events:
+        FlaskApi:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/vesions/2016-10-31.md#api
+          Properties:
+            Path: /webhook
+            Method: get
+
+
+  PostFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: .
+      Handler: lambda_api.lambda_handler_post
+      Runtime: python3.8
+      Events:
+        FlaskApi:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/vesions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: post
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  FlaskApi:
+    Description: "API Gateway endpoint URL for Prod stage for getting token"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  GetFunction:
+    Description: "Get Function ARN"
+    Value: !GetAtt GetFunction.Arn
+  GetFunction:
+    Description: "Post Function ARN"
+    Value: !GetAtt PostFunction.Arn
